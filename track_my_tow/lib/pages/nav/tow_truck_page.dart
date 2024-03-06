@@ -178,54 +178,50 @@ class _TowTruckPageState extends State<TowTruckPage> {
       appBar: AppBar(
         title: const Text('Home'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Card(
-                child: ListTile(
-                  title: const Text('Enter tow truck details'),
-                  onTap: towTrucks.isNotEmpty ? null : _showTowTruckDialog,
-                ),
-              ),
-              ...towTrucks.map((towTruck) {
-                return Card(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Card(
                   child: ListTile(
-                    title: Text(
-                      'Vehicle Number: ${towTruck.vehicleNumber} | Driver ID: ${towTruck.driverId}',
-                    ),
-                  ),
-                );
-              }),
-              const SizedBox(height: 20),
-              if (vehicles.isNotEmpty)
-                const Text(
-                  'Vehicle details',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    title: const Text('Enter tow truck details'),
+                    onTap: towTrucks.isNotEmpty ? null : _showTowTruckDialog,
                   ),
                 ),
-              const SizedBox(height: 20),
-              // Card(
-              //   child: ListTile(
-              //     title: const Text('Vehicle Details'),
-              //     onTap: _showVehicleDialog,
-              //   ),
-              // ),
-              ...vehicles.map((vehicle) {
-                return Card(
-                  child: ListTile(
-                    title: Text(
-                      'Vehicle Number: ${vehicle.vehicleNumber} | Impound Location: ${vehicle.impoundLocation}',
+                ...towTrucks.map((towTruck) {
+                  return Card(
+                    child: ListTile(
+                      title: Text(
+                        'Vehicle Number: ${towTruck.vehicleNumber} | Driver ID: ${towTruck.driverId}',
+                      ),
                     ),
-                    onTap: () => _showEditVehicleDialog(vehicle),
+                  );
+                }),
+                const SizedBox(height: 20),
+                if (vehicles.isNotEmpty)
+                  const Text(
+                    'Vehicle details',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                );
-              }),
-            ],
+                const SizedBox(height: 20),
+                ...vehicles.map((vehicle) {
+                  return Card(
+                    child: ListTile(
+                      title: Text(
+                        'Vehicle Number: ${vehicle.vehicleNumber} | Impound Location: ${vehicle.impoundLocation}',
+                      ),
+                      onTap: () => _showEditVehicleDialog(vehicle),
+                    ),
+                  );
+                }),
+              ],
+            ),
           ),
         ),
       ),
