@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register_page.dart';
+import 'main_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,6 +20,11 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _loginState = 'Succeeded';
       });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainPage()),
+      );
     } else {
       setState(() {
         _loginState = 'Failed';
