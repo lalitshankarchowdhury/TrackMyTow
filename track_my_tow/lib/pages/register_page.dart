@@ -66,81 +66,51 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Register')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_registerState == 'Failed')
-                Text(
-                  _helpMessage,
-                  style: const TextStyle(color: Colors.red),
-                )
-              else if (_registerState == 'Succeeded')
-                Text(
-                  _helpMessage,
-                  style: const TextStyle(color: Colors.green),
-                ),
-              const SizedBox(height: 20),
-              const Text(
-                'Profile Picture Selector',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (_registerState == 'Failed' || _registerState == 'Succeeded')
+              Text(
+                _helpMessage,
+                style: TextStyle(
+                    color:
+                        _registerState == 'Failed' ? Colors.red : Colors.green),
               ),
-              // Add profile picture selector widget here
-              const SizedBox(height: 20),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    _name = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    _uniqueId = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Unique ID',
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    _password = value;
-                  });
-                },
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    _confirmPassword = value;
-                  });
-                },
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm Password',
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _handleRegister,
-                child: const Text('Register'),
-              ),
-            ],
-          ),
+            const SizedBox(height: 20),
+            const Text(
+              'Profile Picture Selector',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: (value) => _name = value,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: (value) => _uniqueId = value,
+              decoration: const InputDecoration(labelText: 'Unique ID'),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: (value) => _password = value,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Password'),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: (value) => _confirmPassword = value,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Confirm Password'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _handleRegister,
+              child: const Text('Register'),
+            ),
+          ],
         ),
       ),
     );

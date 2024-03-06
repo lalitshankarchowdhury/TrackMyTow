@@ -33,70 +33,71 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_loginState == 'Failed')
-                const Text(
-                  "Invalid credentials",
-                  style: TextStyle(color: Colors.red),
-                )
-              else if (_loginState == 'Succeeded')
-                const Text(
-                  "Credentials valid",
-                  style: TextStyle(color: Colors.green),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (_loginState == 'Failed')
+              const Text(
+                "Invalid credentials",
+                style: TextStyle(color: Colors.red),
+              ),
+            if (_loginState == 'Succeeded')
+              const Text(
+                "Credentials valid",
+                style: TextStyle(color: Colors.green),
+              ),
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  _username = value;
+                });
+              },
+              decoration: const InputDecoration(
+                hintText: 'Username',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  _password = value;
+                });
+              },
+              obscureText: true,
+              decoration: const InputDecoration(
+                hintText: 'Password',
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _handleLogin,
+              child: const Text('Login'),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Not registered yet?"),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RegisterPage()),
+                    );
+                  },
+                  child: const Text("Register"),
                 ),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    _username = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  hintText: 'Username',
-                ),
-              ),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    _password = value;
-                  });
-                },
-                obscureText: true,
-                decoration: const InputDecoration(
-                  hintText: 'Password',
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _handleLogin,
-                child: const Text('Login'),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Not registered yet?"),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const RegisterPage()),
-                      );
-                    },
-                    child: const Text("Register"),
-                  ),
-                ],
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );
