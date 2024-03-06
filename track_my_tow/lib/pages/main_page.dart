@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'nav/home_page.dart';
+import 'nav/tow_truck_page.dart';
 import 'nav/history_page.dart';
 import 'nav/settings_page.dart';
 
@@ -9,7 +9,7 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Navigation Bar Example',
+      title: 'Navigation Bar',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -28,7 +28,7 @@ class MyNavigationBar extends StatefulWidget {
 class _MyNavigationBarState extends State<MyNavigationBar> {
   int _selectedIndex = 0;
   static final List<Widget> _pages = <Widget>[
-    const HomePage(),
+    const TowTruckPage(),
     const HistoryPage(),
     const SettingsPage(),
   ];
