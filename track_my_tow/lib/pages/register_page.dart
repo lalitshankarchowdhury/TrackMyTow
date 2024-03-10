@@ -75,6 +75,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Text(
                 _helpMessage,
                 style: TextStyle(
+                    fontWeight: FontWeight.bold,
                     color:
                         _registerState == 'Failed' ? Colors.red : Colors.green),
               ),

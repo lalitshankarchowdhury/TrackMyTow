@@ -46,12 +46,14 @@ class _LoginPageState extends State<LoginPage> {
             if (_loginState == 'Failed')
               const Text(
                 "Invalid credentials",
-                style: TextStyle(color: Colors.red),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
               ),
             if (_loginState == 'Succeeded')
               const Text(
                 "Credentials valid",
-                style: TextStyle(color: Colors.green),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
               ),
             TextField(
               onChanged: (value) {
@@ -81,21 +83,15 @@ class _LoginPageState extends State<LoginPage> {
               child: const Text('Login'),
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Not registered yet?"),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const RegisterPage()),
-                    );
-                  },
-                  child: const Text("Register"),
-                ),
-              ],
+            const Text("Not registered yet?"),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegisterPage()),
+                );
+              },
+              child: const Text("Register"),
             ),
           ],
         ),

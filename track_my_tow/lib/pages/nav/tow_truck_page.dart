@@ -36,7 +36,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Enter Tow Truck Details'),
+          title: const Text('Enter tow truck details'),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,8 +44,9 @@ class _TowTruckPageState extends State<TowTruckPage> {
                 TextField(
                   onChanged: (value) => vehicleNumber = value,
                   decoration:
-                      const InputDecoration(labelText: 'Vehicle Number'),
+                      const InputDecoration(labelText: 'Vehicle number'),
                 ),
+                const SizedBox(height: 10),
                 TextField(
                   onChanged: (value) => driverId = value,
                   decoration: const InputDecoration(labelText: 'Driver ID'),
@@ -83,7 +84,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Enter Vehicle Details'),
+          title: const Text('Enter vehicle details'),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,12 +92,13 @@ class _TowTruckPageState extends State<TowTruckPage> {
                 TextField(
                   onChanged: (value) => vehicleNumber = value,
                   decoration:
-                      const InputDecoration(labelText: 'Vehicle Number'),
+                      const InputDecoration(labelText: 'Vehicle number'),
                 ),
+                const SizedBox(height: 10),
                 TextField(
                   onChanged: (value) => impoundLocation = value,
                   decoration:
-                      const InputDecoration(labelText: 'Impound Location'),
+                      const InputDecoration(labelText: 'Impound location'),
                 ),
               ],
             ),
@@ -141,7 +143,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit Vehicle Details'),
+          title: const Text('Edit vehicle details'),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,14 +152,15 @@ class _TowTruckPageState extends State<TowTruckPage> {
                   controller: TextEditingController(text: editedVehicleNumber),
                   onChanged: (value) => editedVehicleNumber = value,
                   decoration:
-                      const InputDecoration(labelText: 'Vehicle Number'),
+                      const InputDecoration(labelText: 'Vehicle number'),
                 ),
+                const SizedBox(height: 10),
                 TextField(
                   controller:
                       TextEditingController(text: editedImpoundLocation),
                   onChanged: (value) => editedImpoundLocation = value,
                   decoration:
-                      const InputDecoration(labelText: 'Impound Location'),
+                      const InputDecoration(labelText: 'Impound location'),
                 ),
               ],
             ),
@@ -200,7 +203,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
               children: [
                 Card(
                   child: ListTile(
-                    title: const Text('Enter tow truck details'),
+                    title: const Text('Tow truck details'),
                     onTap: towTrucks.isNotEmpty ? null : _showTowTruckDialog,
                   ),
                 ),
@@ -208,7 +211,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
                   return Card(
                     child: ListTile(
                       title: Text(
-                        'Vehicle Number: ${towTruck.vehicleNumber} | Driver ID: ${towTruck.driverId}',
+                        'Vehicle number: ${towTruck.vehicleNumber} • Driver ID: ${towTruck.driverId}',
                       ),
                     ),
                   );
@@ -227,7 +230,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
                   return Card(
                     child: ListTile(
                       title: Text(
-                        'Vehicle Number: ${vehicle.vehicleNumber} | Impound Location: ${vehicle.impoundLocation}',
+                        'Vehicle number: ${vehicle.vehicleNumber} • Impound location: ${vehicle.impoundLocation}',
                       ),
                       onTap: () => _showEditVehicleDialog(vehicle),
                     ),
@@ -239,10 +242,11 @@ class _TowTruckPageState extends State<TowTruckPage> {
         ),
       ),
       floatingActionButton: showFAB
-          ? FloatingActionButton(
+          ? FloatingActionButton.extended(
               onPressed: _showVehicleDialog,
-              tooltip: 'Add Vehicle',
-              child: const Icon(Icons.add),
+              tooltip: 'Add vehicle',
+              label: const Text('Add vehicle'),
+              icon: const Icon(Icons.add),
             )
           : null,
     );

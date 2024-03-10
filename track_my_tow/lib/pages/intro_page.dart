@@ -14,7 +14,7 @@ class IntroPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'TrackMyTow',
+                'Welcome to TrackMyTow',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
