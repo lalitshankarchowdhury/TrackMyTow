@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class TowTruck {
   final String vehicleNumber;
@@ -104,6 +106,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
               onPressed: () {
                 if (vehicleNumber.isNotEmpty && impoundLocation.isNotEmpty) {
                   setState(() {
+                    _getCurrentLocation().then((value) => null);
                     vehicles.add(Vehicle(
                       vehicleNumber: vehicleNumber,
                       impoundLocation: impoundLocation,
@@ -118,6 +121,16 @@ class _TowTruckPageState extends State<TowTruckPage> {
         );
       },
     );
+  }
+
+  Future<void> _getCurrentLocation() async {
+    final permissionStatus = await Permission.locationWhenInUse.request();
+    if (permissionStatus.isGranted) {
+      Geolocator.getCurrentPosition()
+          .then((position) => print('Current location: $position'));
+    } else {
+      print('Location permission denied.');
+    }
   }
 
   void _showEditVehicleDialog(Vehicle vehicle) {
