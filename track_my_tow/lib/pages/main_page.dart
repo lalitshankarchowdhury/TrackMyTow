@@ -4,7 +4,7 @@ import 'nav/history_page.dart';
 import 'nav/settings_page.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  const MainPage({super.key});
 
   @override
   createState() => _MainPageState();
