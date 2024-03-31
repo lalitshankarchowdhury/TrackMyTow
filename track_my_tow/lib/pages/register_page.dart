@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'intro_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -10,21 +13,42 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   String _name = '';
-  String _uniqueId = '';
+  String _email = '';
+  int? _phonenumber = 0;
   String _password = '';
   String _confirmPassword = '';
   String _registerState = '';
   String _helpMessage = '';
 
+  Future<String> _tryRegister(String url, String jsonEncodedData) async {
+    http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncodedData,
+      );
+    } catch (_) {
+      return "Registration failed";
+    }
+
+    Map<String, dynamic> responseData = json.decode(response.body);
+
+    return responseData['message'];
+  }
+
   void _handleRegister() {
     // Validate registration details
     if (_name.isEmpty ||
-        _uniqueId.isEmpty ||
+        _email.isEmpty ||
+        _phonenumber == 0 ||
         _password.isEmpty ||
         _confirmPassword.isEmpty) {
       setState(() {
         _registerState = 'Failed';
-        _helpMessage = 'Please fill in all fields';
+        _helpMessage = 'Please specify all the fields';
       });
       return;
     }
@@ -50,15 +74,37 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    // Registration successful
-    setState(() {
-      _registerState = 'Succeeded';
-      _helpMessage = 'Registration successful';
-    });
+    String url = 'http://localhost:3000/api/auth/register';
+    Map<String, dynamic> requestData = {
+      "name": _name,
+      "email": _email,
+      "password": _password,
+      "phonenumber": _phonenumber,
+      "role": "65b5e135df72d28a3037ef3e",
+    };
+    String jsonEncodedData = json.encode(requestData);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const IntroPage()),
+    _tryRegister(url, jsonEncodedData).then(
+      (message) => {
+        if (message == "Registration successful")
+          {
+            setState(() {
+              _registerState = 'Succeeded';
+              _helpMessage = message;
+            }),
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const IntroPage()),
+            ),
+          }
+        else
+          {
+            setState(() {
+              _registerState = 'Failed';
+              _helpMessage = message;
+            }),
+          }
+      },
     );
   }
 
@@ -91,8 +137,24 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             const SizedBox(height: 20),
             TextField(
-              onChanged: (value) => _uniqueId = value,
-              decoration: const InputDecoration(labelText: 'Unique ID'),
+              onChanged: (value) => _email = value,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  _phonenumber = int.tryParse(value);
+                });
+              },
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(10),
+              ],
+              decoration: const InputDecoration(
+                labelText: 'Phone number',
+              ),
             ),
             const SizedBox(height: 20),
             TextField(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'register_page.dart';
 import 'main_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,26 +12,57 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _username = '';
+  String _email = '';
   String _password = '';
   String _loginState = '';
+  String _helpMessage = '';
+
+  Future<String> _login(String url, String jsonEncodedData) async {
+    http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncodedData,
+      );
+    } catch (_) {
+      return "Login failed";
+    }
+
+    Map<String, dynamic> responseData = json.decode(response.body);
+
+    return responseData['message'];
+  }
 
   void _handleLogin() {
-    // Perform login authentication
-    if (_username == 'admin' && _password == 'password') {
-      setState(() {
-        _loginState = 'Succeeded';
-      });
+    Map<String, dynamic> requestData = {"email": _email, "password": _password};
+    String url = 'http://localhost:3000/api/auth/login';
+    String jsonEncodedData = json.encode(requestData);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MainPage()),
-      );
-    } else {
-      setState(() {
-        _loginState = 'Failed';
-      });
-    }
+    _login(url, jsonEncodedData).then(
+      (message) => {
+        if (message == "Login successful")
+          {
+            setState(() {
+              _loginState = 'Succeeded';
+              _helpMessage = message;
+            }),
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainPage()),
+            )
+          }
+        else
+          {
+            setState(() {
+              _loginState = 'Failed';
+              _helpMessage = message;
+            }),
+          }
+      },
+    );
   }
 
   @override
@@ -43,25 +76,26 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (_loginState == 'Failed')
-              const Text(
-                "Invalid credentials",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+              Text(
+                _helpMessage,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.red),
               ),
             if (_loginState == 'Succeeded')
-              const Text(
-                "Credentials valid",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+              Text(
+                _helpMessage,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.green),
               ),
+            const SizedBox(height: 20),
             TextField(
               onChanged: (value) {
                 setState(() {
-                  _username = value;
+                  _email = value;
                 });
               },
               decoration: const InputDecoration(
-                hintText: 'Username',
+                hintText: 'Email',
               ),
             ),
             const SizedBox(height: 12),
