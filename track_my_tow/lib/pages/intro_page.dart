@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'login_page.dart';
 
 class IntroPage extends StatelessWidget {
-  const IntroPage({super.key});
+  const IntroPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +14,14 @@ class IntroPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SvgPicture.asset(
+                'assets/icons/TowTruck.svg',
+                width: 125,
+                height: 125,
+                colorFilter: const ColorFilter.mode(
+                    Color(0xFFFCB001), BlendMode.srcATop),
+              ),
+              const SizedBox(height: 20),
               const Text(
                 'Welcome to TrackMyTow',
                 style: TextStyle(

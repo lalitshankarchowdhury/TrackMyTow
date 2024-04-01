@@ -16,6 +16,38 @@ class Vehicle {
   Vehicle({required this.vehicleNumber, required this.impoundLocation});
 }
 
+class InitialPage extends StatelessWidget {
+  final VoidCallback onNewTowSession;
+
+  const InitialPage({super.key, required this.onNewTowSession});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              onPressed: onNewTowSession,
+              icon: const Icon(Icons.add),
+              label: const Text('New session'),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Start a new tow session to add vehicles and set their impound location',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class TowTruckPage extends StatefulWidget {
   const TowTruckPage({super.key});
 

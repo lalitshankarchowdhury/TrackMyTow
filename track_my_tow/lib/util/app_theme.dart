@@ -72,7 +72,14 @@ class AppTheme {
           labelMedium: TextStyle(color: Colors.white70),
           labelSmall: TextStyle(color: Colors.white70)),
       appBarTheme: AppBarTheme(
-          color: Colors.grey.shade900, foregroundColor: Colors.white70),
+          titleTextStyle: const TextStyle(
+            fontSize: 22,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.bold,
+            color: Colors.white70,
+          ),
+          color: Colors.grey.shade900,
+          foregroundColor: Colors.white70),
       pageTransitionsTheme: const PageTransitionsTheme(builders: {
         TargetPlatform.android: CupertinoPageTransitionsBuilder(),
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),

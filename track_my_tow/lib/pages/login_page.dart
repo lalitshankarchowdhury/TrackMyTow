@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'main_page.dart';
 import 'register_page.dart';
@@ -90,6 +91,13 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            SvgPicture.asset(
+              'assets/icons/Login.svg',
+              width: 125,
+              height: 125,
+              colorFilter:
+                  const ColorFilter.mode(Color(0xFFFCB001), BlendMode.srcATop),
+            ),
             if (_loginState == 'Failed')
               Text(
                 _helpMessage,
