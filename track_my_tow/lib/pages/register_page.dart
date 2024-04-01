@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'intro_page.dart';
+import 'main_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -40,7 +40,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _handleRegister() {
-    // Validate registration details
     if (_name.isEmpty ||
         _email.isEmpty ||
         _phonenumber == 0 ||
@@ -94,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
             }),
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const IntroPage()),
+              MaterialPageRoute(builder: (context) => const MainPage()),
             ),
           }
         else
@@ -117,7 +116,7 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (_registerState == 'Failed' || _registerState == 'Succeeded')
+            if (_registerState.isNotEmpty)
               Text(
                 _helpMessage,
                 style: TextStyle(
