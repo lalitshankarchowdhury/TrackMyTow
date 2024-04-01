@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'intro_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'intro_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
