@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'main_page.dart';
+import '../util/cookie_manager.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -35,6 +37,19 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     Map<String, dynamic> responseData = json.decode(response.body);
+
+    if (response.statusCode == 200 && responseData['success'] == true) {
+      String? rawCookie = response.headers[HttpHeaders.setCookieHeader];
+      if (rawCookie != null) {
+        Cookie cookie = Cookie.fromSetCookieValue(rawCookie);
+        String cookieString = cookie.toString();
+        try {
+          await CookieManager.saveCookie("token", cookieString);
+        } catch (_) {
+          return "Failed to save authentication token";
+        }
+      }
+    }
 
     return responseData['message'];
   }
