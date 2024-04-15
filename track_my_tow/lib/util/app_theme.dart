@@ -73,7 +73,7 @@ class AppTheme {
           labelSmall: TextStyle(color: Colors.white70)),
       appBarTheme: AppBarTheme(
           titleTextStyle: const TextStyle(
-            fontSize: 22,
+            fontSize: 24,
             fontFamily: 'Inter',
             fontWeight: FontWeight.bold,
             color: Colors.white70,

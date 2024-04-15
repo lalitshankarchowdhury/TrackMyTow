@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'pages/main_page.dart';
-// import 'pages/login_page.dart';
+import 'pages/main_page.dart';
+import 'pages/login_page.dart';
 import 'pages/intro_page.dart';
 import 'util/app_theme.dart';
-import 'util/cookie_manager.dart';
+import 'util/profile_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,23 +15,22 @@ void main() async {
     systemNavigationBarColor: Colors.grey.shade900,
   ));
 
-  String? cookie = await CookieManager.getCookie("token");
-  final StatefulWidget page;
+  profile = await ProfileManager.getProfile();
+  Widget page;
 
-  // if (CookieManager.isCookieExpired(cookie)) {
-  //   CookieManager.deleteCookie("token");
-  //   page = const LoginPage();
-  // } else {
-  //   page = const MainPage();
-  // }
-
-  // runApp(MaterialApp(
-  //   home: page,
-  //   theme: AppTheme.theme,
-  // ));
+  if (profile != null) {
+    if (ProfileManager.isCookieExpired(jsonDecode(profile!)['cookie'])) {
+      ProfileManager.deleteCookie();
+      page = const LoginPage();
+    } else {
+      page = const MainPage();
+    }
+  } else {
+    page = const IntroPage();
+  }
 
   runApp(MaterialApp(
-    home: IntroPage(),
+    home: page,
     theme: AppTheme.theme,
   ));
 }

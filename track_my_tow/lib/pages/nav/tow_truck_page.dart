@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
+import '../../util/profile_manager.dart';
 
 class TowTruck {
   final String vehicleNumber;
@@ -23,9 +26,10 @@ class InitialPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String userName = jsonDecode(profile!)['user']['name'].split(' ')[0];
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: Text('Welcome, $userName!'),
       ),
       body: Center(
         child: Column(
@@ -59,6 +63,27 @@ class _TowTruckPageState extends State<TowTruckPage> {
   List<TowTruck> towTrucks = [];
   List<Vehicle> vehicles = [];
   bool showFAB = false;
+
+  Future<String> _startTowSession(String url, String jsonEncodedData) async {
+    http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncodedData,
+      );
+    } catch (_) {
+      return "Tow session creation failed";
+    }
+
+    Map<String, dynamic> responseData = json.decode(response.body);
+
+    if (response.statusCode == 200 && responseData['success'] == true) {}
+
+    return responseData['message'];
+  }
 
   void _showTowTruckDialog() {
     String vehicleNumber = '';

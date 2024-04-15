@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'main_page.dart';
 import 'register_page.dart';
-import '../util/cookie_manager.dart';
+import '../util/profile_manager.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -38,14 +38,23 @@ class _LoginPageState extends State<LoginPage> {
 
     if (response.statusCode == 200 && responseData['success'] == true) {
       String? rawCookie = response.headers[HttpHeaders.setCookieHeader];
+
       if (rawCookie != null) {
         Cookie cookie = Cookie.fromSetCookieValue(rawCookie);
         String cookieString = cookie.toString();
+
+        Map<String, dynamic> profileData = {
+          'user': responseData['data']['user'],
+          'cookie': cookieString
+        };
+
         try {
-          await CookieManager.saveCookie("token", cookieString);
+          await ProfileManager.saveProfile(jsonEncode(profileData));
         } catch (_) {
           return "Failed to save authentication token";
         }
+      } else {
+        return "Failed to retrieve authentication token";
       }
     }
 
@@ -136,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _handleLogin,
-              child: const Text('Login'),
+              child: const Text('Continue'),
             ),
             const SizedBox(height: 20),
             const Text("Not registered yet?"),

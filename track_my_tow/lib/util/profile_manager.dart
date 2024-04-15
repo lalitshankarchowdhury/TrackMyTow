@@ -1,7 +1,9 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 
-class CookieManager {
+late String? profile;
+
+class ProfileManager {
   static const FlutterSecureStorage _cookieStorage = FlutterSecureStorage();
 
   static bool isCookieExpired(String? cookie) {
@@ -32,15 +34,16 @@ class CookieManager {
     return true;
   }
 
-  static Future<void> saveCookie(String key, String value) async {
-    await _cookieStorage.write(key: key, value: value);
+  static Future<void> saveProfile(String value) async {
+    profile = value;
+    await _cookieStorage.write(key: "profile", value: profile);
   }
 
-  static Future<String?> getCookie(String key) async {
-    return await _cookieStorage.read(key: key);
+  static Future<String?> getProfile() async {
+    return await _cookieStorage.read(key: "profile");
   }
 
-  static Future<void> deleteCookie(String key) async {
-    await _cookieStorage.delete(key: key);
+  static Future<void> deleteCookie() async {
+    await _cookieStorage.delete(key: "profile");
   }
 }
