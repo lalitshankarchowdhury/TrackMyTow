@@ -43,7 +43,7 @@ class ProfileManager {
     return await _cookieStorage.read(key: "profile");
   }
 
-  static Future<void> deleteCookie() async {
+  static Future<void> deleteProfile() async {
     await _cookieStorage.delete(key: "profile");
   }
 }

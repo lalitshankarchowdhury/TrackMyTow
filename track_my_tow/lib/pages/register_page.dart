@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'main_page.dart';
 import '../util/profile_manager.dart';
 
@@ -44,14 +45,15 @@ class _RegisterPageState extends State<RegisterPage> {
       if (rawCookie != null) {
         Cookie cookie = Cookie.fromSetCookieValue(rawCookie);
         String cookieString = cookie.toString();
-
+        print(responseData);
         Map<String, dynamic> profileData = {
           'user': responseData['data']['user'],
           'cookie': cookieString
         };
-
         try {
           await ProfileManager.saveProfile(jsonEncode(profileData));
+          profile = await ProfileManager.getProfile();
+          print(profile);
         } catch (_) {
           return "Failed to save authentication token";
         }
@@ -97,7 +99,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    String url = 'http://localhost:3000/api/auth/register';
+    String url = 'http://13.60.64.128:3000/api/auth/register';
     Map<String, dynamic> requestData = {
       "name": _name,
       "email": _email,
@@ -140,6 +142,14 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            SvgPicture.asset(
+              'assets/icons/Register.svg',
+              width: 125,
+              height: 125,
+              colorFilter:
+                  const ColorFilter.mode(Color(0xFFFCB001), BlendMode.srcATop),
+            ),
+            const SizedBox(height: 20),
             if (_registerState.isNotEmpty)
               Text(
                 _helpMessage,
@@ -148,12 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     color:
                         _registerState == 'Failed' ? Colors.red : Colors.green),
               ),
-            const SizedBox(height: 20),
-            const Text(
-              'Profile Picture Selector',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
+            if (_registerState.isNotEmpty) const SizedBox(height: 20),
             TextField(
               onChanged: (value) => _name = value,
               decoration: const InputDecoration(labelText: 'Name'),

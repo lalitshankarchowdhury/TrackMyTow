@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'login_page.dart';
+import 'request_location_page.dart';
 
 class IntroPage extends StatelessWidget {
-  const IntroPage({Key? key}) : super(key: key);
+  const IntroPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,15 +31,18 @@ class IntroPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text(
-                'Conveniently add towed vehicles and set their impound location',
-                textAlign: TextAlign.center,
-              ),
+                  'Conveniently add towed vehicles and set their impound location',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                  )),
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const RequestLocationPage()),
                   );
                 },
                 child: const Text('Get started'),

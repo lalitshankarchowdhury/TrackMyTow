@@ -4,16 +4,32 @@ class AppTheme {
   static ThemeData theme = ThemeData(
       fontFamily: 'Inter',
       useMaterial3: true,
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: Colors.grey.shade900,
-        selectedItemColor: const Color(0xFFFCB001),
-        unselectedItemColor: Colors.white70,
+      navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: Colors.grey.shade900,
+          surfaceTintColor: Colors.grey.shade900,
+          indicatorColor: const Color(0xFFFCB001),
+          iconTheme: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.selected)) {
+              return const IconThemeData(color: Colors.black);
+            } else {
+              return IconThemeData(color: Colors.grey.shade400);
+            }
+          }),
+          labelTextStyle: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.selected)) {
+              return const TextStyle(
+                color: Color(0xFFFCB001),
+              );
+            } else {
+              return TextStyle(color: Colors.grey.shade400);
+            }
+          })),
+      listTileTheme: ListTileThemeData(
+        textColor: Colors.grey.shade400,
+        iconColor: const Color(0xFFFCB001),
       ),
-      listTileTheme: const ListTileThemeData(
-        textColor: Colors.white70,
-      ),
-      cardTheme: CardTheme(
-        color: Colors.grey.shade800,
+      cardTheme: const CardTheme(
+        color: Color.fromARGB(255, 45, 45, 45),
       ),
       dialogTheme: DialogTheme(
         backgroundColor: Colors.grey.shade900,
@@ -45,41 +61,43 @@ class AppTheme {
       textSelectionTheme:
           const TextSelectionThemeData(cursorColor: Color(0xFFFCB001)),
       inputDecorationTheme: InputDecorationTheme(
-          hintStyle: const TextStyle(color: Colors.white70),
-          labelStyle: const TextStyle(color: Colors.white70),
+          hintStyle: TextStyle(color: Colors.grey.shade400),
+          labelStyle: TextStyle(color: Colors.grey.shade400),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
-            borderSide: const BorderSide(color: Colors.white70, width: 2.0),
+            borderSide: BorderSide(color: Colors.grey.shade400, width: 2.0),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: const BorderSide(color: Color(0xFFFCB001), width: 2.0),
           )),
-      textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.white70),
-          bodyMedium: TextStyle(color: Colors.white70),
-          bodySmall: TextStyle(color: Colors.white70),
-          displayLarge: TextStyle(color: Colors.white70),
-          displayMedium: TextStyle(color: Colors.white70),
-          displaySmall: TextStyle(color: Colors.white70),
-          headlineLarge: TextStyle(color: Colors.white70),
-          headlineMedium: TextStyle(color: Colors.white70),
-          headlineSmall: TextStyle(color: Colors.white70),
-          titleLarge: TextStyle(color: Colors.white70),
-          titleMedium: TextStyle(color: Colors.white70),
-          titleSmall: TextStyle(color: Colors.white70),
-          labelLarge: TextStyle(color: Colors.white70),
-          labelMedium: TextStyle(color: Colors.white70),
-          labelSmall: TextStyle(color: Colors.white70)),
+      textTheme: TextTheme(
+          bodyLarge: TextStyle(color: Colors.grey.shade400),
+          bodyMedium: TextStyle(color: Colors.grey.shade400),
+          bodySmall: TextStyle(color: Colors.grey.shade400),
+          displayLarge: TextStyle(color: Colors.grey.shade400),
+          displayMedium: TextStyle(color: Colors.grey.shade400),
+          displaySmall: TextStyle(color: Colors.grey.shade400),
+          headlineLarge: TextStyle(color: Colors.grey.shade400),
+          headlineMedium: TextStyle(color: Colors.grey.shade400),
+          headlineSmall: TextStyle(color: Colors.grey.shade400),
+          titleLarge: TextStyle(color: Colors.grey.shade400),
+          titleMedium: TextStyle(color: Colors.grey.shade400),
+          titleSmall: TextStyle(color: Colors.grey.shade400),
+          labelLarge: TextStyle(color: Colors.grey.shade400),
+          labelMedium: TextStyle(color: Colors.grey.shade400),
+          labelSmall: TextStyle(color: Colors.grey.shade400)),
       appBarTheme: AppBarTheme(
-          titleTextStyle: const TextStyle(
-            fontSize: 24,
+          toolbarHeight: 70,
+          titleTextStyle: TextStyle(
+            fontSize: 28,
             fontFamily: 'Inter',
             fontWeight: FontWeight.bold,
-            color: Colors.white70,
+            color: Colors.grey.shade400,
           ),
           color: Colors.grey.shade900,
-          foregroundColor: Colors.white70),
+          surfaceTintColor: Colors.grey.shade900,
+          foregroundColor: Colors.grey.shade400),
       pageTransitionsTheme: const PageTransitionsTheme(builders: {
         TargetPlatform.android: CupertinoPageTransitionsBuilder(),
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),

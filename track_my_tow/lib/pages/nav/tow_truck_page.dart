@@ -1,28 +1,107 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
 import '../../util/profile_manager.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
+import 'dart:async';
 
-class TowTruck {
-  final String vehicleNumber;
-  final String driverId;
+Map<String, dynamic> currentTowSessionData = {};
+bool emitLocation = false;
+late Timer _timer;
 
-  TowTruck({required this.vehicleNumber, required this.driverId});
+void _startTimer() {
+  const Duration interval = Duration(seconds: 10);
+  _timer = Timer.periodic(interval, (Timer timer) {
+    _emitCurrentLocation();
+  });
 }
 
-class Vehicle {
-  final String vehicleNumber;
-  final String impoundLocation;
+void _emitCurrentLocation() async {
+  if (emitLocation) {
+    String url =
+        'http://13.60.64.128:3000/api/tow/tows/update-current-location';
+    try {
+      Map<String, dynamic> requestData = {
+        "towId": currentTowSessionData["_id"],
+        "currentLocation": await _getCurrentLocation()
+      };
+      String jsonEncodedData = json.encode(requestData);
+      String cookie = jsonDecode(profile!)['cookie'];
+      String token = cookie.split('=')[1].split(';')[0];
+      http.Response response = await http.put(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncodedData,
+      );
 
-  Vehicle({required this.vehicleNumber, required this.impoundLocation});
+      if (response.statusCode == 200) {
+        print("Updated current location");
+      } else {
+        throw 'End tow session failed';
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
 }
 
-class InitialPage extends StatelessWidget {
-  final VoidCallback onNewTowSession;
+Future<Map<String, double>> _getCurrentLocation() async {
+  final permissionStatus = await Permission.locationWhenInUse.request();
+  if (permissionStatus.isGranted) {
+    Position position = await Geolocator.getCurrentPosition();
+    return {
+      'lat': position.latitude,
+      'long': position.longitude,
+    };
+  } else {
+    print('Location permission denied.');
+    return {};
+  }
+}
 
-  const InitialPage({super.key, required this.onNewTowSession});
+class TowTruckManager extends StatefulWidget {
+  const TowTruckManager({super.key});
+
+  @override
+  createState() => _TowTruckManagerState();
+}
+
+class _TowTruckManagerState extends State<TowTruckManager> {
+  bool isTowSessionActive = false;
+
+  void toggleTowSession() {
+    if (emitLocation) {
+      _timer.cancel();
+    } else {
+      _startTimer();
+    }
+    setState(() {
+      emitLocation = !emitLocation;
+      isTowSessionActive = !isTowSessionActive;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return isTowSessionActive
+        ? TowTruckPage(
+            onEndSession: toggleTowSession,
+          )
+        : TowTruckStartPage(
+            onStartSession: toggleTowSession,
+          );
+  }
+}
+
+class TowTruckStartPage extends StatelessWidget {
+  final VoidCallback onStartSession;
+
+  const TowTruckStartPage({super.key, required this.onStartSession});
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +114,33 @@ class InitialPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SvgPicture.asset(
+              'assets/icons/Vehicle.svg',
+              width: 125,
+              height: 125,
+              colorFilter:
+                  const ColorFilter.mode(Color(0xFFFCB001), BlendMode.srcATop),
+            ),
+            const SizedBox(height: 20),
             ElevatedButton.icon(
-              onPressed: onNewTowSession,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => ImpoundLocationDialog(
+                    onTowSessionStart: onStartSession,
+                  ),
+                );
+              },
               icon: const Icon(Icons.add),
               label: const Text('New session'),
             ),
             const SizedBox(height: 20),
             const Text(
-              'Start a new tow session to add vehicles and set their impound location',
+              'Start a tow session to add vehicles and set their impound location',
               textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+              ),
             ),
           ],
         ),
@@ -52,80 +149,136 @@ class InitialPage extends StatelessWidget {
   }
 }
 
+class Vehicle {
+  final String numberPlate;
+  Vehicle({required this.numberPlate});
+}
+
 class TowTruckPage extends StatefulWidget {
-  const TowTruckPage({super.key});
+  final VoidCallback onEndSession;
+  const TowTruckPage({super.key, required this.onEndSession});
 
   @override
-  createState() => _TowTruckPageState();
+  _TowTruckPageState createState() => _TowTruckPageState();
 }
 
 class _TowTruckPageState extends State<TowTruckPage> {
-  List<TowTruck> towTrucks = [];
   List<Vehicle> vehicles = [];
-  bool showFAB = false;
 
-  Future<String> _startTowSession(String url, String jsonEncodedData) async {
-    http.Response response;
+  Future<String> _endCurrentTow(String jsonEncodedData) async {
+    String url = 'http://13.60.64.128:3000/api/tow/tows';
     try {
-      response = await http.post(
+      String cookie = jsonDecode(profile!)['cookie'];
+      String token = cookie.split('=')[1].split(';')[0];
+      print(token);
+      http.Response response = await http.put(
         Uri.parse(url),
         headers: <String, String>{
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncodedData,
       );
-    } catch (_) {
-      return "Tow session creation failed";
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = json.decode(response.body);
+        currentTowSessionData = responseData['data'];
+        return responseData['message'];
+      } else {
+        throw 'End tow session failed';
+      }
+    } catch (error) {
+      throw 'End tow session failed';
     }
-
-    Map<String, dynamic> responseData = json.decode(response.body);
-
-    if (response.statusCode == 200 && responseData['success'] == true) {}
-
-    return responseData['message'];
   }
 
-  void _showTowTruckDialog() {
-    String vehicleNumber = '';
-    String driverId = '';
+  void _handleCloseCurrentTowSession() async {
+    try {
+      Map<String, dynamic> requestData = {
+        "towId": currentTowSessionData["_id"]
+      };
+      String jsonEncodedData = json.encode(requestData);
+      String result = await _endCurrentTow(jsonEncodedData);
+      if (result == 'End tow session failed') {
+        print("Failed to end tow session");
+      } else {
+        widget.onEndSession();
+      }
+    } catch (error) {
+      print("Failed to end tow session: $error");
+    }
+  }
 
+  void _addVehicleToTow(
+      String numberPlate, Map<String, double> pickupLocation) async {
+    String url = 'http://13.60.64.128:3000/api/tow/tows/add-vehicle';
+    try {
+      Map<String, dynamic> requestData = {
+        "towId": currentTowSessionData["_id"],
+        "numberPlate": numberPlate,
+        "pickupLocation": pickupLocation
+      };
+      String jsonEncodedData = json.encode(requestData);
+      String cookie = jsonDecode(profile!)['cookie'];
+      String token = cookie.split('=')[1].split(';')[0];
+      print(token);
+      http.Response response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncodedData,
+      );
+      if (response.statusCode == 200) {
+        print("Success!");
+        Map<String, dynamic> responseData = json.decode(response.body);
+        print(responseData);
+      } else {
+        print("Failed to end tow session:");
+      }
+    } catch (error) {
+      print("Failed to end tow session: $error");
+    }
+  }
+
+  void _addVehicle(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        String numberPlate = '';
         return AlertDialog(
-          title: const Text('Enter tow truck details'),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                TextField(
-                  onChanged: (value) => vehicleNumber = value,
-                  decoration:
-                      const InputDecoration(labelText: 'Vehicle number'),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  onChanged: (value) => driverId = value,
-                  decoration: const InputDecoration(labelText: 'Driver ID'),
-                ),
-              ],
+          title: const Text('Add Vehicle'),
+          content: TextField(
+            controller: TextEditingController(text: "GJ"),
+            onChanged: (value) {
+              numberPlate = value;
+            },
+            decoration: const InputDecoration(
+              hintText: 'Enter number plate',
             ),
           ),
           actions: <Widget>[
             TextButton(
+              child: const Text('Cancel'),
               onPressed: () {
-                if (vehicleNumber.isNotEmpty && driverId.isNotEmpty) {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Add'),
+              onPressed: () async {
+                if (numberPlate.isNotEmpty) {
+                  _addVehicleToTow(
+                    numberPlate,
+                    await _getCurrentLocation(),
+                  );
                   setState(() {
-                    towTrucks.add(TowTruck(
-                      vehicleNumber: vehicleNumber,
-                      driverId: driverId,
-                    ));
-                    showFAB = true;
+                    vehicles.add(Vehicle(numberPlate: numberPlate));
                   });
                   Navigator.of(context).pop();
                 }
               },
-              child: const Text('Save'),
             ),
           ],
         );
@@ -133,48 +286,40 @@ class _TowTruckPageState extends State<TowTruckPage> {
     );
   }
 
-  void _showVehicleDialog() {
-    String vehicleNumber = '';
-    String impoundLocation = '';
-
+  void _editVehicle(BuildContext context, int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        String numberPlate = vehicles[index].numberPlate;
         return AlertDialog(
-          title: const Text('Enter vehicle details'),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                TextField(
-                  onChanged: (value) => vehicleNumber = value,
-                  decoration:
-                      const InputDecoration(labelText: 'Vehicle number'),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  onChanged: (value) => impoundLocation = value,
-                  decoration:
-                      const InputDecoration(labelText: 'Impound location'),
-                ),
-              ],
+          title: const Text('Edit Vehicle'),
+          content: TextField(
+            controller:
+                TextEditingController(text: vehicles[index].numberPlate),
+            onChanged: (value) {
+              numberPlate = value;
+            },
+            decoration: const InputDecoration(
+              hintText: 'Enter number plate',
             ),
           ),
           actions: <Widget>[
             TextButton(
+              child: const Text('Cancel'),
               onPressed: () {
-                if (vehicleNumber.isNotEmpty && impoundLocation.isNotEmpty) {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Save'),
+              onPressed: () {
+                if (numberPlate.isNotEmpty) {
                   setState(() {
-                    _getCurrentLocation().then((value) => null);
-                    vehicles.add(Vehicle(
-                      vehicleNumber: vehicleNumber,
-                      impoundLocation: impoundLocation,
-                    ));
+                    vehicles[index] = Vehicle(numberPlate: numberPlate);
                   });
                   Navigator.of(context).pop();
                 }
               },
-              child: const Text('Save'),
             ),
           ],
         );
@@ -182,62 +327,28 @@ class _TowTruckPageState extends State<TowTruckPage> {
     );
   }
 
-  Future<void> _getCurrentLocation() async {
-    final permissionStatus = await Permission.locationWhenInUse.request();
-    if (permissionStatus.isGranted) {
-      Geolocator.getCurrentPosition()
-          .then((position) => print('Current location: $position'));
-    } else {
-      print('Location permission denied.');
-    }
-  }
-
-  void _showEditVehicleDialog(Vehicle vehicle) {
-    String editedVehicleNumber = vehicle.vehicleNumber;
-    String editedImpoundLocation = vehicle.impoundLocation;
-
+  void _deleteVehicle(BuildContext context, int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit vehicle details'),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                TextField(
-                  controller: TextEditingController(text: editedVehicleNumber),
-                  onChanged: (value) => editedVehicleNumber = value,
-                  decoration:
-                      const InputDecoration(labelText: 'Vehicle number'),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller:
-                      TextEditingController(text: editedImpoundLocation),
-                  onChanged: (value) => editedImpoundLocation = value,
-                  decoration:
-                      const InputDecoration(labelText: 'Impound location'),
-                ),
-              ],
-            ),
-          ),
+          title: const Text('Delete Vehicle'),
+          content: const Text('Are you sure you want to delete this vehicle?'),
           actions: <Widget>[
             TextButton(
+              child: const Text('Cancel'),
               onPressed: () {
-                if (editedVehicleNumber.isNotEmpty &&
-                    editedImpoundLocation.isNotEmpty) {
-                  setState(() {
-                    vehicles.remove(vehicle);
-                    vehicles.add(Vehicle(
-                      vehicleNumber: editedVehicleNumber,
-                      impoundLocation: editedImpoundLocation,
-                    ));
-                  });
-                  Navigator.of(context).pop();
-                }
+                Navigator.of(context).pop();
               },
-              child: const Text('Save'),
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                setState(() {
+                  vehicles.removeAt(index);
+                });
+                Navigator.of(context).pop();
+              },
             ),
           ],
         );
@@ -249,63 +360,193 @@ class _TowTruckPageState extends State<TowTruckPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Tow vehicles'),
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  child: ListTile(
-                    title: const Text('Tow truck details'),
-                    onTap: towTrucks.isNotEmpty ? null : _showTowTruckDialog,
-                  ),
-                ),
-                ...towTrucks.map((towTruck) {
-                  return Card(
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: vehicles.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    _editVehicle(context, index);
+                  },
+                  onLongPress: () {
+                    _deleteVehicle(context, index);
+                  },
+                  child: Card(
                     child: ListTile(
-                      title: Text(
-                        'Vehicle number: ${towTruck.vehicleNumber} • Driver ID: ${towTruck.driverId}',
-                      ),
-                    ),
-                  );
-                }),
-                const SizedBox(height: 20),
-                if (vehicles.isNotEmpty)
-                  const Text(
-                    'Vehicle details',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      title: Text(vehicles[index].numberPlate),
                     ),
                   ),
-                const SizedBox(height: 20),
-                ...vehicles.map((vehicle) {
-                  return Card(
-                    child: ListTile(
-                      title: Text(
-                        'Vehicle number: ${vehicle.vehicleNumber} • Impound location: ${vehicle.impoundLocation}',
-                      ),
-                      onTap: () => _showEditVehicleDialog(vehicle),
-                    ),
-                  );
-                }),
-              ],
+                );
+              },
             ),
-          ),
-        ),
-      ),
-      floatingActionButton: showFAB
-          ? FloatingActionButton.extended(
-              onPressed: _showVehicleDialog,
-              tooltip: 'Add vehicle',
+            const SizedBox(height: 20),
+            FloatingActionButton.extended(
+              onPressed: () {
+                _addVehicle(context);
+              },
               label: const Text('Add vehicle'),
               icon: const Icon(Icons.add),
-            )
-          : null,
+            ),
+            const SizedBox(height: 100),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.check),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFC4501),
+              ),
+              onPressed: () {
+                _handleCloseCurrentTowSession();
+              },
+              label: const Text('End session'),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'End tow session when drop location is reached',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ImpoundLocationDialog extends StatefulWidget {
+  final VoidCallback onTowSessionStart;
+
+  const ImpoundLocationDialog({super.key, required this.onTowSessionStart});
+
+  @override
+  createState() => _ImpoundLocationDialogState();
+}
+
+class _ImpoundLocationDialogState extends State<ImpoundLocationDialog> {
+  String selectedLocation = 'Sabarmati RTO';
+  Map<String, double> impoundLocation = {
+    "lat": 23.066925263101407,
+    "long": 72.581401442333
+  };
+
+  Future<String> _createNewTow(String jsonEncodedData) async {
+    String url = 'http://13.60.64.128:3000/api/tow/tows';
+    try {
+      String cookie = jsonDecode(profile!)['cookie'];
+      String token = cookie.split('=')[1].split(';')[0];
+      print(token);
+      http.Response response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncodedData,
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = json.decode(response.body);
+        currentTowSessionData = responseData['data'];
+        return responseData['message'];
+      } else {
+        throw 'Create tow session failed';
+      }
+    } catch (error) {
+      throw 'Create tow session failed';
+    }
+  }
+
+  void _handleNewTowSession() async {
+    try {
+      Map<String, dynamic> requestData = {
+        "policeId": jsonDecode(profile!)['user']['_id'],
+        "startLocation": await _getCurrentLocation(),
+        "endLocation": impoundLocation
+      };
+      String jsonEncodedData = json.encode(requestData);
+      String result = await _createNewTow(jsonEncodedData);
+      if (result == 'Create tow session failed') {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            content: const Text('Failed to create new tow session.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        widget.onTowSessionStart();
+      }
+    } catch (error) {
+      print("Failed to create new tow session: $error");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Select impound location'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: const Text('Sabarmati RTO'),
+            onTap: () {
+              setState(() {
+                selectedLocation = 'Sabarmati RTO';
+                impoundLocation = {
+                  "lat": 23.066925263101407,
+                  "long": 72.581401442333
+                };
+              });
+            },
+            leading: selectedLocation == 'Sabarmati RTO'
+                ? const Icon(Icons.check_circle)
+                : null,
+          ),
+          ListTile(
+            title: const Text('Vastral RTO'),
+            onTap: () {
+              setState(() {
+                selectedLocation = 'Vastral RTO';
+                impoundLocation = {
+                  "lat": 23.00090492273734,
+                  "long": 72.64524546598686
+                };
+              });
+            },
+            leading: selectedLocation == 'Vastral RTO'
+                ? const Icon(Icons.check_circle)
+                : null,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: impoundLocation.isNotEmpty
+              ? () {
+                  _handleNewTowSession();
+                  Navigator.of(context).pop();
+                }
+              : null,
+          child: const Text('Ok'),
+        ),
+      ],
     );
   }
 }

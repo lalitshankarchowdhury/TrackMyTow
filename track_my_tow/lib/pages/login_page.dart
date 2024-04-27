@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _handleLogin() {
     Map<String, dynamic> requestData = {"email": _email, "password": _password};
-    String url = 'http://localhost:3000/api/auth/login';
+    String url = 'http://13.60.64.128:3000/api/auth/login';
     String jsonEncodedData = json.encode(requestData);
 
     _login(url, jsonEncodedData).then(
@@ -156,7 +156,10 @@ class _LoginPageState extends State<LoginPage> {
                   MaterialPageRoute(builder: (context) => const RegisterPage()),
                 );
               },
-              child: const Text("Register"),
+              child: const Text(
+                "Register",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),

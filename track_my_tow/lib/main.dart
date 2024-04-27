@@ -20,7 +20,7 @@ void main() async {
 
   if (profile != null) {
     if (ProfileManager.isCookieExpired(jsonDecode(profile!)['cookie'])) {
-      ProfileManager.deleteCookie();
+      ProfileManager.deleteProfile();
       page = const LoginPage();
     } else {
       page = const MainPage();
