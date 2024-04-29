@@ -95,15 +95,15 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SvgPicture.asset(
               'assets/icons/Login.svg',
-              width: 125,
-              height: 125,
+              width: 150,
+              height: 150,
               colorFilter:
                   const ColorFilter.mode(Color(0xFFFCB001), BlendMode.srcATop),
             ),
@@ -119,7 +119,8 @@ class _LoginPageState extends State<LoginPage> {
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.green),
               ),
-            const SizedBox(height: 20),
+            if (_loginState == 'Succeeded' || _loginState == 'Failed')
+              const SizedBox(height: 16),
             TextField(
               onChanged: (value) {
                 setState(() {
@@ -129,8 +130,9 @@ class _LoginPageState extends State<LoginPage> {
               decoration: const InputDecoration(
                 hintText: 'Email',
               ),
+              autofocus: true,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextField(
               onChanged: (value) {
                 setState(() {
@@ -142,12 +144,12 @@ class _LoginPageState extends State<LoginPage> {
                 hintText: 'Password',
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _handleLogin,
               child: const Text('Continue'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 32),
             const Text("Not registered yet?"),
             TextButton(
               onPressed: () {

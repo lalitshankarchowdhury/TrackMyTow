@@ -10,18 +10,18 @@ class IntroPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
                 'assets/icons/TowTruck.svg',
-                width: 125,
-                height: 125,
+                width: 150,
+                height: 150,
                 colorFilter: const ColorFilter.mode(
                     Color(0xFFFCB001), BlendMode.srcATop),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               const Text(
                 'Welcome to TrackMyTow',
                 style: TextStyle(
@@ -29,7 +29,7 @@ class IntroPage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               const Text(
                   'Conveniently add towed vehicles and set their impound location',
                   textAlign: TextAlign.center,

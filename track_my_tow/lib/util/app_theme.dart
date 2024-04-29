@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static ThemeData theme = ThemeData(
+  static ThemeData darkTheme = ThemeData(
       fontFamily: 'Inter',
       useMaterial3: true,
       navigationBarTheme: NavigationBarThemeData(
@@ -46,8 +46,11 @@ class AppTheme {
         backgroundColor: const Color(0xFFFCB001),
         foregroundColor: Colors.grey.shade900,
       ),
+      progressIndicatorTheme:
+          const ProgressIndicatorThemeData(color: Color(0xFFFCB001)),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          elevation: 10,
           textStyle: const TextStyle(
             fontSize: 16,
             fontFamily: 'Inter',
@@ -58,8 +61,10 @@ class AppTheme {
         ),
       ),
       scaffoldBackgroundColor: Colors.grey.shade900,
-      textSelectionTheme:
-          const TextSelectionThemeData(cursorColor: Color(0xFFFCB001)),
+      textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Color(0xFFFCB001),
+          selectionColor: Color(0x7EFCB001),
+          selectionHandleColor: Color(0xFFFCB001)),
       inputDecorationTheme: InputDecorationTheme(
           hintStyle: TextStyle(color: Colors.grey.shade400),
           labelStyle: TextStyle(color: Colors.grey.shade400),
@@ -88,7 +93,7 @@ class AppTheme {
           labelMedium: TextStyle(color: Colors.grey.shade400),
           labelSmall: TextStyle(color: Colors.grey.shade400)),
       appBarTheme: AppBarTheme(
-          toolbarHeight: 70,
+          toolbarHeight: 77,
           titleTextStyle: TextStyle(
             fontSize: 28,
             fontFamily: 'Inter',

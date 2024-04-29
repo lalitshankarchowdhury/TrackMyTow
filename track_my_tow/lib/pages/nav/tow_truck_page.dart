@@ -12,7 +12,7 @@ bool emitLocation = false;
 late Timer _timer;
 
 void _startTimer() {
-  const Duration interval = Duration(seconds: 10);
+  const Duration interval = Duration(milliseconds: 1000);
   _timer = Timer.periodic(interval, (Timer timer) {
     _emitCurrentLocation();
   });
@@ -42,10 +42,10 @@ void _emitCurrentLocation() async {
       if (response.statusCode == 200) {
         print("Updated current location");
       } else {
-        throw 'End tow session failed';
+        print('Update current location failed');
       }
     } catch (error) {
-      print(error);
+      print('Update current location failed');
     }
   }
 }
@@ -108,41 +108,44 @@ class TowTruckStartPage extends StatelessWidget {
     String userName = jsonDecode(profile!)['user']['name'].split(' ')[0];
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, $userName!'),
+        title: Text('Welcome back, $userName!'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/icons/Vehicle.svg',
-              width: 125,
-              height: 125,
-              colorFilter:
-                  const ColorFilter.mode(Color(0xFFFCB001), BlendMode.srcATop),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => ImpoundLocationDialog(
-                    onTowSessionStart: onStartSession,
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('New session'),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Start a tow session to add vehicles and set their impound location',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/icons/Vehicle.svg',
+                width: 150,
+                height: 150,
+                colorFilter: const ColorFilter.mode(
+                    Color(0xFFFCB001), BlendMode.srcATop),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => ImpoundLocationDialog(
+                      onTowSessionStart: onStartSession,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('New session'),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Start a tow session to add vehicles and set their impound location',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -170,7 +173,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
     try {
       String cookie = jsonDecode(profile!)['cookie'];
       String token = cookie.split('=')[1].split(';')[0];
-      print(token);
+
       http.Response response = await http.put(
         Uri.parse(url),
         headers: <String, String>{
@@ -221,7 +224,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
       String jsonEncodedData = json.encode(requestData);
       String cookie = jsonDecode(profile!)['cookie'];
       String token = cookie.split('=')[1].split(';')[0];
-      print(token);
+      ;
       http.Response response = await http.post(
         Uri.parse(url),
         headers: <String, String>{
@@ -235,10 +238,41 @@ class _TowTruckPageState extends State<TowTruckPage> {
         Map<String, dynamic> responseData = json.decode(response.body);
         print(responseData);
       } else {
-        print("Failed to end tow session:");
+        print("Failed to add vehicle");
       }
     } catch (error) {
-      print("Failed to end tow session: $error");
+      print("Failed to add vehicle: $error");
+    }
+  }
+
+  void _deleteVehicleFromTow(String numberPlate) async {
+    String url = 'http://13.60.64.128:3000/api/tow/tows/add-vehicle';
+    try {
+      Map<String, dynamic> requestData = {
+        "towId": currentTowSessionData["_id"],
+        "numberPlate": numberPlate,
+      };
+      String jsonEncodedData = json.encode(requestData);
+      String cookie = jsonDecode(profile!)['cookie'];
+      String token = cookie.split('=')[1].split(';')[0];
+      ;
+      http.Response response = await http.delete(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncodedData,
+      );
+      if (response.statusCode == 200) {
+        print("Deleted vehicle: $numberPlate");
+        Map<String, dynamic> responseData = json.decode(response.body);
+        print(responseData);
+      } else {
+        print("Failed to delete vehicle");
+      }
+    } catch (error) {
+      print("Failed to delete vehicle: $error");
     }
   }
 
@@ -328,6 +362,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
   }
 
   void _deleteVehicle(BuildContext context, int index) {
+    String numberPlate = vehicles[index].numberPlate;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -344,6 +379,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
             TextButton(
               child: const Text('Delete'),
               onPressed: () {
+                _deleteVehicleFromTow(numberPlate);
                 setState(() {
                   vehicles.removeAt(index);
                 });
@@ -363,10 +399,9 @@ class _TowTruckPageState extends State<TowTruckPage> {
         title: const Text('Tow vehicles'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 32.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             ListView.builder(
               shrinkWrap: true,
@@ -387,7 +422,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
                 );
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             FloatingActionButton.extended(
               onPressed: () {
                 _addVehicle(context);
@@ -395,7 +430,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
               label: const Text('Add vehicle'),
               icon: const Icon(Icons.add),
             ),
-            const SizedBox(height: 100),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
               icon: const Icon(Icons.check),
               style: ElevatedButton.styleFrom(
@@ -406,7 +441,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
               },
               label: const Text('End session'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             const Text(
               'End tow session when drop location is reached',
               textAlign: TextAlign.center,
@@ -414,7 +449,6 @@ class _TowTruckPageState extends State<TowTruckPage> {
                 fontSize: 16,
               ),
             ),
-            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -443,7 +477,7 @@ class _ImpoundLocationDialogState extends State<ImpoundLocationDialog> {
     try {
       String cookie = jsonDecode(profile!)['cookie'];
       String token = cookie.split('=')[1].split(';')[0];
-      print(token);
+      ;
       http.Response response = await http.post(
         Uri.parse(url),
         headers: <String, String>{

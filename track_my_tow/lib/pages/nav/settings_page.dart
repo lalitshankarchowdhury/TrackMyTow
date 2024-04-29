@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import '../../util/profile_manager.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../login_page.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../../util/profile_manager.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../login_page.dart';
 
 class ProfileCard extends StatelessWidget {
   final String name;
@@ -20,8 +20,9 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 8,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -59,7 +60,7 @@ class ProfileCard extends StatelessWidget {
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key});
 
-  Future<void> _logout() async {
+  Future<void> _logout(BuildContext context) async {
     Map<String, dynamic> requestData = {
       "profileId": jsonDecode(profile!)['user']['_id']
     };
@@ -68,7 +69,6 @@ class SettingsPage extends StatelessWidget {
     try {
       String cookie = jsonDecode(profile!)['cookie'];
       String token = cookie.split('=')[1].split(';')[0];
-      print(token);
       http.Response response = await http.post(
         Uri.parse(url),
         headers: <String, String>{
@@ -77,11 +77,13 @@ class SettingsPage extends StatelessWidget {
         },
         body: jsonEncodedData,
       );
-
       if (response.statusCode == 200) {
         await ProfileManager.deleteProfile();
         profile = "";
-        print("Logout");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
       } else {
         throw 'Logout failed';
       }
@@ -98,29 +100,31 @@ class SettingsPage extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ProfileCard(
-                name: jsonDecode(profile!)['user']['name'],
-                email: jsonDecode(profile!)['user']['email'],
-                phoneNumber: jsonDecode(profile!)['user']['phonenumber'],
+              SvgPicture.asset('assets/icons/Policeman.svg',
+                  width: 150, height: 150),
+              const SizedBox(height: 16),
+              Container(
+                width: 400,
+                child: ProfileCard(
+                  name: jsonDecode(profile!)['user']['name'],
+                  email: jsonDecode(profile!)['user']['email'],
+                  phoneNumber: jsonDecode(profile!)['user']['phonenumber'],
+                ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               ElevatedButton.icon(
                 icon: const Icon(Icons.logout),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFC4501),
                 ),
                 onPressed: () {
-                  _logout();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
+                  _logout(context);
                 },
-                label: const Text('End session'),
+                label: const Text('Log out'),
               ),
             ],
           ),

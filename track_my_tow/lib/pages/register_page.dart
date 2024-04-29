@@ -138,18 +138,18 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Register')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SvgPicture.asset(
               'assets/icons/Register.svg',
-              width: 125,
-              height: 125,
+              width: 150,
+              height: 150,
               colorFilter:
                   const ColorFilter.mode(Color(0xFFFCB001), BlendMode.srcATop),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             if (_registerState.isNotEmpty)
               Text(
                 _helpMessage,
@@ -158,17 +158,18 @@ class _RegisterPageState extends State<RegisterPage> {
                     color:
                         _registerState == 'Failed' ? Colors.red : Colors.green),
               ),
-            if (_registerState.isNotEmpty) const SizedBox(height: 20),
+            if (_registerState.isNotEmpty) const SizedBox(height: 16),
             TextField(
               onChanged: (value) => _name = value,
               decoration: const InputDecoration(labelText: 'Name'),
+              autofocus: true,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             TextField(
               onChanged: (value) => _email = value,
               decoration: const InputDecoration(labelText: 'Email'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             TextField(
               onChanged: (value) {
                 setState(() {
@@ -184,19 +185,19 @@ class _RegisterPageState extends State<RegisterPage> {
                 labelText: 'Phone number',
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             TextField(
               onChanged: (value) => _password = value,
               obscureText: true,
               decoration: const InputDecoration(labelText: 'Password'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             TextField(
               onChanged: (value) => _confirmPassword = value,
               obscureText: true,
               decoration: const InputDecoration(labelText: 'Confirm Password'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _handleRegister,
               child: const Text('Continue'),

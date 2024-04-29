@@ -31,6 +31,6 @@ void main() async {
 
   runApp(MaterialApp(
     home: page,
-    theme: AppTheme.theme,
+    theme: AppTheme.darkTheme,
   ));
 }
