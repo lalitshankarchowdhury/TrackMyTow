@@ -7,8 +7,6 @@ class ProfileManager {
   static const FlutterSecureStorage _cookieStorage = FlutterSecureStorage();
 
   static bool isCookieExpired(String? cookie) {
-    return true;
-
     if (cookie == null || cookie.isEmpty) {
       return true;
     }
